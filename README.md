@@ -3,7 +3,7 @@
 Operating System Project.
 
 Credits:
-Processor Management: Emil Ossowski
+Processor Management: Emil Ossowski <br />
 Synchronization Methods: [Remigiusz Wróblewski](https://github.com/remeq7)
 Memory Management: [Paweł Świerczyński](https://github.com/pawelswierczynski)
 Process Management: [Jakub Szczepaniak](https://github.com/Szczepcio)
