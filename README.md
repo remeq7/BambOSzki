@@ -2,7 +2,7 @@
 
 Operating System Project.
 
-Credits:
+Credits:<br />
 Processor Management: Emil Ossowski <br />
 Synchronization Methods: [Remigiusz Wróblewski](https://github.com/remeq7)<br />
 Memory Management: [Paweł Świerczyński](https://github.com/pawelswierczynski)<br />
