@@ -1,13 +1,13 @@
-#BambOSzki 
+BambOSzki 
 
 Operating System Project.
 
-Credits:
-Processor Management: Emil Ossowski
-Synchronization Methods: [Remigiusz Wróblewski](https://github.com/remeq7)
-Memory Management: [Paweł Świerczyński](https://github.com/pawelswierczynski)
-Process Management: [Jakub Szczepaniak](https://github.com/Szczepcio)
-Interprocess Communication: [Mikołaj Topolski](https://github.com/mikolajt)
-File Management: [Klaudia Siłakowska](https://github.com/xKlaudia)
-Command Shell: [Mateusz Urbański](https://github.com/mati15000)
-Interpreter:
+Credits:<br />
+Processor Management: Emil Ossowski <br />
+Synchronization Methods: [Remigiusz Wróblewski](https://github.com/remeq7)<br />
+Memory Management: [Paweł Świerczyński](https://github.com/pawelswierczynski)<br />
+Process Management: [Jakub Szczepaniak](https://github.com/Szczepcio)<br />
+Interprocess Communication: [Mikołaj Topolski](https://github.com/mikolajt)<br />
+File Management: [Klaudia Siłakowska](https://github.com/xKlaudia)<br />
+Command Shell: [Mateusz Urbański](https://github.com/mati15000)<br />
+Interpreter:<br />
