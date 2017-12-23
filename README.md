@@ -1,4 +1,4 @@
-#BambOSzki 
+BambOSzki 
 
 Operating System Project.
 
