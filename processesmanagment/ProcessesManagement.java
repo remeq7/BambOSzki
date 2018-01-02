@@ -1,7 +1,8 @@
 package processesmanagment;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-
+import memoryManagement.VirtualMemory;
 
 public class ProcessesManagement extends Process {
 
@@ -19,7 +20,7 @@ public class ProcessesManagement extends Process {
 	
 	private List<Integer> finishedProcessList;
 	
-	private RAM RAM;
+	private VirtualMemory RAM;
 	
 	private int processNumber;
 	
@@ -27,7 +28,7 @@ public class ProcessesManagement extends Process {
 	
 	//---Konstruktor-------------------------------------------------------------------------------------
 	
-	public ProcessesManagement(RAM RAM) {
+	public ProcessesManagement(VirtualMemory RAM) {
 		this.RAM = RAM;
 		processesList = new LinkedList<Process>();
 		idoverseer = new ID_Overseer();
@@ -40,7 +41,7 @@ public class ProcessesManagement extends Process {
 	
 	//---
 
-	public int NewProcess_XC(String ProgramPath_Original, String Name){
+	public int NewProcess_XC(String ProgramPath_Original, String Name) throws IOException{
 		int i = FindProcessWithName(Name);
 		  
 		  if(i != -1) {
@@ -56,12 +57,12 @@ public class ProcessesManagement extends Process {
 		  processesList.add(process); 
 		  processNumber++;
 		  
-		  RAM.loadDataProcess(s, ProgramPath_Original);
+		  RAM.loadProcess(Name,???,???);
 		  CheckStates();
 		 return 0;
 	}
 	
-	public void NewProcess_forUser(String ProgramPath_Original, String Name) {
+	public void NewProcess_forUser(String ProgramPath_Original, String Name) throws IOException {
 		Process process = new Process();
 		int id = idoverseer.PickID();	
 		int i = FindProcessWithName(Name);
@@ -74,7 +75,7 @@ public class ProcessesManagement extends Process {
 		processesList.add(process);
 		processNumber++;
 		
-		RAM.loadDataProcess(s, ProgramPath_Original);
+		RAM.loadProcess(Name,???, ???);
 		CheckStates();
 	}
 	
@@ -89,10 +90,10 @@ public class ProcessesManagement extends Process {
 	
 	//---
 	
-	private void  DeleteProcess() {
+	private void  DeleteProcess() throws IOException {
 		for (int i = 0; i < finishedProcessList.size(); i++) {
 			int index = FindProcessWithID(finishedProcessList.get(i));
-			RAM.deleteProcessData(processesList.get(index).GetName()); //Pewnie bedziesz z tego jakos korzystal Pawel
+			RAM.deleteProcess(processesList.get(i).GetName()); //Pewnie bedziesz z tego jakos korzystal Pawel
 			processesList.remove(index);
 		}
 		finishedProcessList.clear();
@@ -109,13 +110,13 @@ public class ProcessesManagement extends Process {
 
 	}
 	
-	public void DeleteProcessWithName_XD(String name) {
+	public void DeleteProcessWithName_XD(String name) throws IOException {
                for(int i=0;i<processesList.size();i++)
                 {
                     if(processesList.get(i).GetName()==name)
                     {
                         processesList.remove(i); 
-                        RAM.deleteProcessData(name);
+                        RAM.deleteProcess(name);
                     }
                 }
 
@@ -123,7 +124,7 @@ public class ProcessesManagement extends Process {
 	
 	
 	
-	public void CheckStates() {
+	public void CheckStates() throws IOException {
 		for (int i = 0; i < processesList.size(); i++) {
 			if(processesList.get(i).pcb.ProcessState == stateOverseer.finished) {
 				finishedProcessList.add(processesList.get(i).pcb.ProcessID);
