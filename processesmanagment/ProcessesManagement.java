@@ -20,7 +20,7 @@ public class ProcessesManagement extends Process {
 	
 	private List<Integer> finishedProcessList;
 	
-	private VirtualMemory RAM;
+	VirtualMemory RAM = new VirtualMemory();
 	
 	private int processNumber;
 	
@@ -62,7 +62,7 @@ public class ProcessesManagement extends Process {
 		 return 0;
 	}
 	
-	public void NewProcess_forUser(String ProgramPath_Original, String Name) throws IOException {
+	/*public void NewProcess_forUser(String ProgramPath_Original, String Name) throws IOException {
 		Process process = new Process();
 		int id = idoverseer.PickID();	
 		int i = FindProcessWithName(Name);
@@ -77,7 +77,7 @@ public class ProcessesManagement extends Process {
 		
 		
 		CheckStates();
-	}
+	}*/
 	
 	public  Process NewProcess_EmptyProcess(String Name) throws IOException {
 		Process process = new Process();
@@ -94,7 +94,7 @@ public class ProcessesManagement extends Process {
 		for (int i = 0; i < finishedProcessList.size(); i++) {
                         
 			int index = FindProcessWithID(finishedProcessList.get(i));
-			RAM.deleteProcess(processesList.get(i).GetName()); 
+			RAM.deleteProcess(GetNameWithID(finishedProcessList.get(i))); 
                         for(int j=0;j<processesList.size();j++)
                         {
                             if(processesList.get(index).GetFirstPageNumber()<processesList.get(j).GetFirstPageNumber())
@@ -411,16 +411,18 @@ public class ProcessesManagement extends Process {
 	}
 
 	public void printProcessInformations(int ID) {
-            
+                int a=0;
 		for(int i=0;i<processesList.size();i++)
                 {
                     if(processesList.get(i).GetID()==ID)
                     {
-                      processesList.get(i).printInformations();  
+                      processesList.get(i).printInformations();
+                      a++;
                     }
-                    else if (processesList.get(i).GetID()!=ID)
-			System.out.println("This process does not exist");
+                    
                 }
+                if (a==0)
+			System.out.println("This process does not exist");
 
 	}
 	

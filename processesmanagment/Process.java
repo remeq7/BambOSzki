@@ -56,7 +56,7 @@ public class Process {
 		pcb.howLongWaiting = 0;
                 
                 ExchangeFile E = new ExchangeFile();
-                pcb.firstPageNumber = E.getExchangeFileLength();
+                pcb.firstPageNumber = E.getExchangeFileLength()/16;
                 
                 pcb.howManyPages = 0;
 	}
@@ -98,7 +98,7 @@ public class Process {
                 pcb.howManyPages = 0;
                 
                 ExchangeFile E = new ExchangeFile();
-                pcb.firstPageNumber = E.getExchangeFileLength();
+                pcb.firstPageNumber = E.getExchangeFileLength()/16;
                 
 	}
 	
@@ -115,6 +115,8 @@ public class Process {
 		System.out.println("waiting time - " + pcb.howLongWaiting);
 		System.out.println("lock state - " + pcb.blocked);
 		System.out.println("received msg - " + pcb.receivedMsg);
+                System.out.println("first page number - " + pcb.firstPageNumber);
+		System.out.println("number of pages - " + pcb.howManyPages);
 		//procesor
 		System.out.println("Register A - " + pcb.A);
 		System.out.println("Register B - " + pcb.B);
