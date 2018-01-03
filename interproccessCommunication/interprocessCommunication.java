@@ -13,13 +13,13 @@ class interprocessCommunication
 {
     //-------------------------ZMIENNE STATYCZNE-------------------------------
 
-    static int FIFO_LINES = -1;
-    static String FILE_NAME = "communcation.txt";
+    private static int FIFO_LINES = -1;
+    private static String FILE_NAME = "communcation.txt";
 
     //-------------------------ZMIENNE-----------------------------------------
 
-    processesManagment processesmanagment;
-    Locks lock;
+    private processesManagment processesmanagment;
+    private Locks lock;
 
     //-------------------------KONSTRUKTORY------------------------------------
 
@@ -135,7 +135,7 @@ class interprocessCommunication
                 {
                     System.out.println(out.nextLine());
                 }
-                
+
             } catch (FileNotFoundException ex)
             {
                 System.out.println(ex.getMessage());
@@ -144,7 +144,7 @@ class interprocessCommunication
     }
 
     //usuwa plik
-    public void delete()
+    private void delete()
     {
         File file = new File(FILE_NAME);
         file.delete();
