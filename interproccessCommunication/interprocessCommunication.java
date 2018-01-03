@@ -61,7 +61,7 @@ class interprocessCommunication
             writer.close();
         } catch (IOException ex)
         {
-            System.out.println(ex.getMessage());
+            System.out.println("Error: " + ex.getMessage());
         }
         lock.unlock(processManagment.getProcess(receiverName));
     }
@@ -109,11 +109,11 @@ class interprocessCommunication
 
         } catch (FileNotFoundException ex1)
         {
-            System.out.println(ex1.getMessage());
+            System.out.println("Error: " + ex1.getMessage());
             return message;
         } catch (IOException ex)
         {
-            System.out.println(ex.getMessage());
+            System.out.println("Error: " + ex.getMessage());
             return message;
         }
     }
@@ -138,7 +138,7 @@ class interprocessCommunication
 
             } catch (FileNotFoundException ex)
             {
-                System.out.println(ex.getMessage());
+                System.out.println("Error: " + ex.getMessage());
             }
         }
     }
