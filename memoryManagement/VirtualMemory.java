@@ -13,11 +13,8 @@ public class VirtualMemory {
     private ExchangeFile exchangeFile = new ExchangeFile();
     
     public String currentProcess = "test"; //zmienna testowa
-    public int firstPageNumber = 1; //zmienna testowa
-    public int firstPageNumber2 = 4; //zmienna testowa
-    public int numberOfPages = 2; //zmienna testowa
     
-    VirtualMemory() {
+    public VirtualMemory() {
         for (int i = 0; i < 128; i++)
             virtualMemory[i] = ' ';
         for (int i = 0; i < 8; i++)
@@ -26,11 +23,13 @@ public class VirtualMemory {
     
     public char readMemory(int logicalAddress) throws IOException {
         int pageTableIndex = 0;
+        int firstPageNumber = 0;
         for (int i = 0; i < processesNames.size(); i++) {
             if (processesNames.get(i).equals(currentProcess)) { //Sprawdź nazwę aktualnie wykonywanego programu.
                 pageTableIndex = i;
                 break;
             }
+            firstPageNumber += pageTables.get(i).getLength();
         }
         if (!(pageTables.get(pageTableIndex).getValid(logicalAddress / 16))) {
             boolean freeFrame = false;
@@ -57,17 +56,19 @@ public class VirtualMemory {
                         int victimPageNumber = 0;
                         boolean victimFrameFound = false;
                         for (int i = 0; i < pageTables.size(); i++) {
-                            if (victimFrameFound)
-                                break;
                             for (int j = 0; j < pageTables.get(i).getLength(); j++) {
                                 if (pageTables.get(i).getValid(j) && victimFrameNumber.equals(pageTables.get(i).getFrameNumber(j))) {
                                     victimFrameFound = true;
-                                    victimPageNumber = firstPageNumber + j; //Sprawdź numer pierwszej stronicy.
+                                    victimPageNumber += j; //Sprawdź numer pierwszej stronicy.
                                     pageTables.get(i).setFrameNumber(j, null);
                                     pageTables.get(i).setValid(j, false);
                                     break;
                                 }
                             }
+                            if (victimFrameFound)
+                                break;
+                            else
+                                victimPageNumber += pageTables.get(i).getLength();
                         }
                         for (int i = 0; i < 16; i++) {
                             exchangeFile.writeCharacterToExchangeFile((long) (victimPageNumber * 16 + i), virtualMemory[victimFrameNumber * 16 + i]);
@@ -100,11 +101,13 @@ public class VirtualMemory {
     
     public void writeMemory(int logicalAddress, char character) throws IOException {
         int pageTableIndex = 0;
+        int firstPageNumber = 0;
         for (int i = 0; i < processesNames.size(); i++) {
             if (processesNames.get(i).equals(currentProcess)) { //Sprawdź nazwę aktualnie wykonywanego programu.
                 pageTableIndex = i;
                 break;
             }
+            firstPageNumber += pageTables.get(i).getLength();
         }
         if (!(pageTables.get(pageTableIndex).getValid(logicalAddress / 16))) {
             boolean freeFrame = false;
@@ -131,17 +134,19 @@ public class VirtualMemory {
                         int victimPageNumber = 0;
                         boolean victimFrameFound = false;
                         for (int i = 0; i < pageTables.size(); i++) {
-                            if (victimFrameFound)
-                                break;
                             for (int j = 0; j < pageTables.get(i).getLength(); j++) {
                                 if (pageTables.get(i).getValid(j) && victimFrameNumber.equals(pageTables.get(i).getFrameNumber(j))) {
                                     victimFrameFound = true;
-                                    victimPageNumber = firstPageNumber + j; //Sprawdź numer pierwszej stronicy.
+                                    victimPageNumber += j; //Sprawdź numer pierwszej stronicy.
                                     pageTables.get(i).setFrameNumber(j, null);
                                     pageTables.get(i).setValid(j, false);
                                     break;
                                 }
                             }
+                            if (victimFrameFound)
+                                break;
+                            else
+                                victimPageNumber += pageTables.get(i).getLength();
                         }
                         for (int i = 0; i < 16; i++) {
                             exchangeFile.writeCharacterToExchangeFile((long) (victimPageNumber * 16 + i), virtualMemory[victimFrameNumber * 16 + i]);
@@ -204,7 +209,6 @@ public class VirtualMemory {
     public void loadProcess(String processName, String program, int size) throws IOException {
         processesNames.add(processName);
         pageTables.add(new PageTable(size));
-        //
         for (int i = 0; i < (size / 16 + 1) * 16; i++) {
             if (i < program.length())
                 exchangeFile.writeCharacterToExchangeFile(exchangeFile.getExchangeFileLength(), program.charAt(i));
@@ -216,11 +220,15 @@ public class VirtualMemory {
     public void deleteProcess(String processName) throws IOException {
         int index = 0;
         int frameNumber;
+        int firstPageNumber = 0;
+        int numberOfPages = 0;
         for (int i = 0; i < processesNames.size(); i++) {
             if (processesNames.get(i).equals(processName)) {
                 index = i;
+                numberOfPages = pageTables.get(i).getLength();
                 break;
             }
+            firstPageNumber += pageTables.get(i).getLength();
         }
         for (int i = 0; i < pageTables.get(index).getLength(); i++) {
             if (pageTables.get(index).getValid(i)) {

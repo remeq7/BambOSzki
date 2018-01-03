@@ -4,7 +4,7 @@ public class PageTable {
     private Integer frameNumber[];
     private boolean valid[];
     
-    PageTable(int size) {
+    public PageTable(int size) {
         if (size < 1) {
             frameNumber = new Integer[0];
             valid = new boolean[0];
