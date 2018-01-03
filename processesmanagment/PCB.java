@@ -14,10 +14,10 @@ public class PCB {
 	protected int whenCameToList;
 	protected int howLongWaiting;
 	
-	
-	public String receivedMsg;
 	public int commandCounter;
-        public int howManyPages;
+	public String receivedMsg;
+        public long firstPageNumber;
+	public int howManyPages;
 	//public HashMap<String, Integer> labels = new HashMap<String, Integer>();
 	public int A;
 	public int B;

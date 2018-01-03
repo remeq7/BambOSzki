@@ -1,4 +1,6 @@
 package processesmanagment;
+import java.io.IOException;
+import memoryManagement.ExchangeFile;
 
 public class Process {
 
@@ -21,7 +23,7 @@ public class Process {
 	
 	//---Stworz nowy proces------------------------------------------------------------------------------
 		
-	protected void CreateProcess(int ID,String name, int number){
+	protected void CreateProcess(int ID,String name, int number) throws IOException{
 		
 		pcb.ProcessState = stateOverseer.newbie;
 		
@@ -52,9 +54,14 @@ public class Process {
 		pcb.ProcessState = stateOverseer.ready;
 		
 		pcb.howLongWaiting = 0;
+                
+                ExchangeFile E = new ExchangeFile();
+                pcb.firstPageNumber = E.getExchangeFileLength();
+                
+                pcb.howManyPages = 0;
 	}
 	
-	protected void CreateProcess(int ID,String ProgramPath_Original, String Name, int number) {
+	protected void CreateProcess(int ID,String ProgramPath_Original, String Name, int number) throws IOException {
 		pcb.ProcessState = stateOverseer.newbie;
 		pcb.ProcessID = ID;
 		
@@ -87,6 +94,12 @@ public class Process {
 		pcb.ProcessState = stateOverseer.ready;
 		
 		pcb.howLongWaiting = 0;
+                                
+                pcb.howManyPages = 0;
+                
+                ExchangeFile E = new ExchangeFile();
+                pcb.firstPageNumber = E.getExchangeFileLength();
+                
 	}
 	
 	//---odczytaj dane procesu----------------------------------------------------------------------------
@@ -109,25 +122,17 @@ public class Process {
 		System.out.println("Register D - " + pcb.D);
 		System.out.println("done command counter - " + pcb.commandCounter);
 	}
-	
-	//-- Getery i Setery----------------------------------------------------------------------------------
-	
-	//---
-	
+
 	public int GetID() {
 		
 		return pcb.ProcessID;
 	}
-	
-	//---
-	
+
 	public String GetName() {
 		
 		return pcb.ProcessName;
 	}
-	
-	//---
-	
+
 	public int GetWhenCameToList() {
 			
 		return pcb.whenCameToList;
@@ -138,9 +143,7 @@ public class Process {
 			
 		pcb.whenCameToList = when;
 	}
-		
-	//---
-		
+
 	public int GetState() {
 			
 		return pcb.ProcessState;
@@ -150,9 +153,7 @@ public class Process {
 			
 		pcb.ProcessState = State;
 	}
-	
-	//---
-	
+
 	public int GetBasePriority() {
 		
 		return pcb.BaseProcessPriority;
@@ -162,9 +163,7 @@ public class Process {
 		
 		pcb.BaseProcessPriority = priority;
 	}
-	
-	//---
-	
+
 	public int GetCurrentPriority() {
 			
 		return pcb.CurrentProcessPriority;
@@ -175,8 +174,6 @@ public class Process {
 		pcb.CurrentProcessPriority = Priority;
 	}
 	
-	//---
-		
 	public int GetHowLongWaiting() {
 			
 		return pcb.howLongWaiting;
@@ -195,9 +192,7 @@ public class Process {
 			
 		pcb.howManyPages = howMany;
 	}
-		
-	//---
-	
+
 	public boolean GetBlocked() {
 		
 		return pcb.blocked;
@@ -207,9 +202,7 @@ public class Process {
 		
 		pcb.blocked = blockedState;
 	}
-	
-	//---
-	
+
 	public PCB GetPCB() {
 		
 		return pcb;
@@ -219,4 +212,13 @@ public class Process {
 		
 		pcb = yourPCB;
 	}
+        
+        public  long GetFirstPageNumber() throws IOException
+        {
+                return pcb.firstPageNumber; 
+        }
+        public void SetFirstPageNumber(long exchange) throws IOException
+        {
+            pcb.firstPageNumber=exchange;
+        }
 }

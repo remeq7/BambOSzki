@@ -41,7 +41,7 @@ public class ProcessesManagement extends Process {
 	
 	//---
 
-	public int NewProcess_XC(String ProgramPath_Original, String Name) throws IOException{
+	public int NewProcess_XC(String Name) throws IOException{
 		int i = FindProcessWithName(Name);
 		  
 		  if(i != -1) {
@@ -57,7 +57,7 @@ public class ProcessesManagement extends Process {
 		  processesList.add(process); 
 		  processNumber++;
 		  
-		  RAM.loadProcess(Name,???,???);
+		  
 		  CheckStates();
 		 return 0;
 	}
@@ -75,11 +75,11 @@ public class ProcessesManagement extends Process {
 		processesList.add(process);
 		processNumber++;
 		
-		RAM.loadProcess(Name,???, ???);
+		
 		CheckStates();
 	}
 	
-	public  Process NewProcess_EmptyProcess(String Name) {
+	public  Process NewProcess_EmptyProcess(String Name) throws IOException {
 		Process process = new Process();
 		process.CreateProcess(-1, Name, -1);
 		process.SetBasePriority(0);
@@ -92,19 +92,28 @@ public class ProcessesManagement extends Process {
 	
 	private void  DeleteProcess() throws IOException {
 		for (int i = 0; i < finishedProcessList.size(); i++) {
+                        
 			int index = FindProcessWithID(finishedProcessList.get(i));
-			RAM.deleteProcess(processesList.get(i).GetName()); //Pewnie bedziesz z tego jakos korzystal Pawel
+			RAM.deleteProcess(processesList.get(i).GetName()); 
+                        for(int j=0;j<processesList.size();j++)
+                        {
+                            if(processesList.get(index).GetFirstPageNumber()<processesList.get(j).GetFirstPageNumber())
+                            {
+                                processesList.get(j).SetFirstPageNumber(processesList.get(j).GetFirstPageNumber()-processesList.get(index).GetHowManyPages());
+                            }
+                        }
+                        
 			processesList.remove(index);
 		}
 		finishedProcessList.clear();
 	}
 	
-	public void DeleteProcessWithID(int ID) {
+	/*public void DeleteProcessWithID(int ID) {
                 for(int i=0;i<processesList.size();i++)
                 {
                     if(processesList.get(i).GetID()==ID)
                     {
-                        processesList.remove(i);    
+                        processesList.remove(i); 
                     }
                 }
 
@@ -120,7 +129,7 @@ public class ProcessesManagement extends Process {
                     }
                 }
 
-	}
+	}*/
 	
 	
 	
@@ -376,11 +385,11 @@ public class ProcessesManagement extends Process {
 	
 	//---
 	
-	public PCB GetPCBWithID(int ID) {
+	public PCB GetPCBWithName(String name) {
             int pomoc=0;
 		for(int i=0;i<processesList.size();i++)
                 {
-                    if(processesList.get(i).GetID()==ID)
+                    if(processesList.get(i).GetName()==name)
                     {
                       pomoc=i;  
                     }
@@ -422,5 +431,31 @@ public class ProcessesManagement extends Process {
 	 */
 	public Process getProcess(String name) {
 		return processesList.get(FindProcessWithName(name));
+	}
+        
+        public long GetFirstPageNumberWithID(int ID) throws IOException {
+		
+		  long pierwszastrona=0;
+		for(int i=0;i<processesList.size();i++)
+                {
+                    if(processesList.get(i).GetID()==ID)
+                    {
+                       pierwszastrona= processesList.get(i).GetFirstPageNumber();     
+                    }
+                }
+
+		return pierwszastrona;
+	}
+        public void SetFirstPageNumberWithID(int ID,long firstPageNumber) throws IOException {
+		
+	
+		for(int i=0;i<processesList.size();i++)
+                {
+                    if(processesList.get(i).GetID()==ID)
+                    {
+                       processesList.get(i).SetFirstPageNumber(firstPageNumber);     
+                    }
+                }
+
 	}
 }
