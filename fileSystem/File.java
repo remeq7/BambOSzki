@@ -64,6 +64,10 @@ public class File {
 		}
 	}
 	
+	protected void SetSize(int size) {
+		this.size = size;
+	}
+	
 	public String GetFullName(){
 		return this.name + '.' + this.extension;
 	}
