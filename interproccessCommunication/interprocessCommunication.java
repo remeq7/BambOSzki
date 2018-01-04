@@ -19,14 +19,14 @@ class interprocessCommunication
     //-------------------------ZMIENNE-----------------------------------------
 
     private processesManagment processesmanagment;
-    private Locks lock;
+    private Lock lock;
 
     //-------------------------KONSTRUKTORY------------------------------------
 
     public interprocessCommunication()
     {
         processesmanagment = new processesManagment();
-        lock = new Locks();
+        lock = new Lock();
     }
 
     //-------------------------FUNKCJE-----------------------------------------
