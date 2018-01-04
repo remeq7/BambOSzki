@@ -6,7 +6,7 @@ public class SecondChanceElement {
     private final int frameNumber;
     private boolean secondChance;
     
-    SecondChanceElement(int frameNumber, boolean secondChance) {
+    public SecondChanceElement(int frameNumber, boolean secondChance) {
         this.frameNumber = frameNumber;
         this.secondChance = secondChance;
     }
