@@ -32,7 +32,7 @@ class interprocessCommunication
     //-------------------------FUNKCJE-----------------------------------------
 
     //Zapisuje wiadomość do pliku
-    public void write(String message)
+    public void write(String message, String receiverName)
     {
         lock.lock(processManagment.getProcess(receiverName));
         try
@@ -67,7 +67,7 @@ class interprocessCommunication
     }
 
     //zczytuje wiadomość z pliku
-    public String read()
+    public String read(String senderName)
     {
         lock.lock(processManagment.getProcess(senderName));
         String message = "";
@@ -92,9 +92,9 @@ class interprocessCommunication
             }
             else
             {
-                message = messages_array.get(messages_array.size() - 1);
+                message = messages_array.get(0);
 
-                messages_array.remove(messages_array.size() - 1);
+                messages_array.remove(0);
                 FIFO_LINES--;
                 FileWriter writer = new FileWriter(file);
                 BufferedWriter in = new BufferedWriter(writer);
