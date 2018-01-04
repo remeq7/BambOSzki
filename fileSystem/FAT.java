@@ -48,39 +48,36 @@ public class FAT {
 					int contentSize = content.length();
 					if((FreeBlocksSpace() + filesFreeSpace) < contentSize) throw new OutOfBlocks("Brak miejsca na dysku");
 					else {
-						int lastBlock = file.GetNextBlock();
+						int lastBlock = firstBlock;
 						int charToWrite = 0;
 						
-						while(lastBlock != -1) {
-							file = FATarray.get(lastBlock);
+						while(file.GetNextBlock() != LAST_BLOCK) {
 							lastBlock = file.GetNextBlock();
+							file = FATarray.get(lastBlock);
 						}
-						for(int i=0; i<filesFreeSpace && i<contentSize; i++) {
-							disk[i+BLOCK_SIZE*lastBlock] = content.charAt(charToWrite);
-							charToWrite++;
-							contentSize--;
+						int firstEmptyChar = -1;
+						for(int i=0; i<BLOCK_SIZE; i++) {
+							if(disk[i+lastBlock*BLOCK_SIZE] == '#') {
+								firstEmptyChar = i;
+								break;
+							}
 						}
-						while(contentSize !=0) {
-							int freeBlock = FindFreeBlock();
-							FATarray.set(freeBlock, file);
-							file.SetNextBlock(LAST_BLOCK);
-							for(int i=0; i<BLOCK_SIZE && contentSize!=0; i++) {
-								disk[i+BLOCK_SIZE*freeBlock] = content.charAt(charToWrite);
+						if(firstEmptyChar != -1) {
+							for(int i=firstEmptyChar; i<BLOCK_SIZE && contentSize != 0; i++) {
+								disk[i+BLOCK_SIZE*lastBlock] = content.charAt(charToWrite);
 								charToWrite++;
 								contentSize--;
 							}
-							FreeBlocks[freeBlock] = false;
-							if(contentSize > 0) {
-								file = new File(file);
-								int currentBlock = freeBlock;
-								freeBlock = FindFreeBlock();
-								FATarray.get(currentBlock).SetNextBlock(freeBlock);
-							}
+						}
+						if(contentSize != 0) {
+							String unwrittenContent = content.substring(content.length()-contentSize);
+							FATarray.get(lastBlock).SetNextBlock(NewFileRecord(fullName, unwrittenContent));
 						}
 					}
 				}
 			} 				
 		}
+		RefreshSize(fullName);
 		return true;
 	}
 	
@@ -111,40 +108,12 @@ public class FAT {
 			throw new IllegalFileNameException("Istnieje plik o podanej nazwie");
 		}
 		else {
-			int freeBlock = FindFreeBlock();
-			int fileSize = content.length();
-			int numberOfFreeBlocks = CountFreeBlocks();
-			
-			if(freeBlock == -1) throw new OutOfBlocks("Brak miejsca na dysku. Kod -1");
-			else if(freeBlock < -1 || freeBlock > 31) throw new Exception("Blad algorytmu");
-			else {
-				double d_neededBlocks = (double) fileSize/BLOCK_SIZE; //Casting double to integer rounds down 
-				int i_neededBlocks = (int) d_neededBlocks;
-				if (d_neededBlocks%1 != 0) i_neededBlocks+=1;
-				
-				if(i_neededBlocks > numberOfFreeBlocks) throw new OutOfBlocks("Brak miejsca na dysku. Kod -2");
-				else {
-					/* nowy wpis katalogowy */
-					File file = new File(fullName, freeBlock, LAST_BLOCK, fileSize);
-					
-					int charToWrite = 0;	//Zmienna pomocnicza
-					while(fileSize != 0) {
-						FATarray.set(freeBlock, file);
-						file.SetNextBlock(LAST_BLOCK);
-						for(int i=0; i<BLOCK_SIZE && fileSize!=0; i++) {
-							disk[i+BLOCK_SIZE*freeBlock] = content.charAt(charToWrite);
-							charToWrite++;
-							fileSize--;
-						}
-						FreeBlocks[freeBlock] = false;
-						if(fileSize > 0) {
-							file = new File(file);
-							int currentBlock = freeBlock;
-							freeBlock = FindFreeBlock();
-							FATarray.get(currentBlock).SetNextBlock(freeBlock);
-						}
-					}
-				}
+			try {
+				NewFileRecord(fullName, content);
+				RefreshSize(fullName);
+			}
+			catch(Exception e) {
+				throw e;
 			}
 		}
 		return true;
@@ -172,7 +141,9 @@ public class FAT {
 		}
 		return false;
 	}
-	
+	public boolean[] GetFreeBlocks() {
+		return FreeBlocks;
+	}
 	public void PrintDisk() {
 		int blockNr = 1;
 		System.out.println("Ilosc wolnego miejsca na dysku " + CountFreeBlocks()*BLOCK_SIZE);
@@ -195,7 +166,7 @@ public class FAT {
 					content += disk[i+blockToRead*BLOCK_SIZE];
 					fileSize--;
 				}
-				if(fileSize > 0) {
+				if(file.GetNextBlock() != LAST_BLOCK && fileSize !=0) {
 					blockToRead = file.GetNextBlock();
 					file = FATarray.get(blockToRead);
 				}
@@ -232,17 +203,16 @@ public class FAT {
 			int blockToRead = FindFilesFirstBlock(fullName);
 			int counter = 0;
 			File file = FATarray.get(blockToRead);
-			int fileSize = file.GetSize();
-			do {
-				for(int i=0; i<BLOCKS && fileSize!=0; i++) {
+			for(;;) {
+				for(int i=0; i<BLOCK_SIZE; i++) {
 					if (disk[i+blockToRead*BLOCK_SIZE] == '#') counter++;
-					fileSize--;
 				}
-				if(fileSize > 0) {
+				if(file.GetNextBlock() == -1) break;
+				else {
 					blockToRead = file.GetNextBlock();
 					file = FATarray.get(blockToRead);
 				}
-			} while (file.GetNextBlock() != -1 && fileSize != 0);
+			}
 			return counter;
 		}
 		else return BLOCK_ERROR;
@@ -265,5 +235,68 @@ public class FAT {
 	
 	private int FreeBlocksSpace() {
 		return CountFreeBlocks() * BLOCK_SIZE;
+	}
+	
+	private int NewFileRecord(String fullName, String content) throws Exception {
+		int freeBlock = FindFreeBlock();
+		int firstBlock = freeBlock;
+		int fileSize = content.length();
+		int numberOfFreeBlocks = CountFreeBlocks();
+		
+		if(freeBlock == -1) throw new OutOfBlocks("Brak miejsca na dysku. Kod -1");
+		else if(freeBlock < -1 || freeBlock > 31) throw new Exception("Blad algorytmu");
+		else {
+			double d_neededBlocks = (double) fileSize/BLOCK_SIZE; //Casting double to integer rounds down 
+			int i_neededBlocks = (int) d_neededBlocks;
+			if (d_neededBlocks%1 != 0) i_neededBlocks+=1;
+			
+			if(i_neededBlocks > numberOfFreeBlocks) throw new OutOfBlocks("Brak miejsca na dysku. Kod -2");
+			else {
+				/* nowy wpis katalogowy */
+				File file = new File(fullName, freeBlock, LAST_BLOCK, fileSize);
+				
+				int charToWrite = 0;	//Zmienna pomocnicza
+				while(fileSize != 0) {
+					FATarray.set(freeBlock, file);
+					file.SetNextBlock(LAST_BLOCK);
+					for(int i=0; i<BLOCK_SIZE && fileSize!=0; i++) {
+						disk[i+BLOCK_SIZE*freeBlock] = content.charAt(charToWrite);
+						charToWrite++;
+						fileSize--;
+					}
+					FreeBlocks[freeBlock] = false;
+					if(fileSize > 0) {
+						file = new File(file);
+						int currentBlock = freeBlock;
+						freeBlock = FindFreeBlock();
+						FATarray.get(currentBlock).SetNextBlock(freeBlock);
+					}
+				}
+			}
+		}
+		return firstBlock;
+	}
+	private void RefreshSize(String fullName) throws Exception {
+		if(!DoesFileExist(fullName)) throw new Exception("Brak pliku");
+		else {
+			int blocksInUse = 1;
+			int size = 0;
+			int currentBlock = FindFilesFirstBlock(fullName);
+			int nextBlock = LAST_BLOCK;
+			
+			File file = FATarray.get(currentBlock);
+			while(file.GetNextBlock() != LAST_BLOCK) {
+				blocksInUse++;
+				file = FATarray.get(file.GetNextBlock());
+			}
+			size = blocksInUse * BLOCK_SIZE - FilesFreeSpace(fullName);
+			
+			FATarray.get(FindFilesFirstBlock(fullName)).SetSize(size);
+			nextBlock = FATarray.get(currentBlock).GetNextBlock();
+			while(nextBlock != LAST_BLOCK) {
+				FATarray.get(nextBlock).SetSize(size);
+				nextBlock = FATarray.get(nextBlock).GetNextBlock();
+			}
+		}
 	}
 }
